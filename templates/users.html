@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Usuários{% endblock %}
+{% block heading %}Usuários e acessos{% endblock %}
+{% block content %}
+<section class="two-columns users-layout">
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Administrador</p><h3>Cadastrar usuário</h3></div></div>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Nome completo<input name="display_name" required minlength="3" maxlength="100"></label>
+      <label>Usuário<input name="username" required minlength="3" maxlength="40" autocomplete="off"></label>
+      <label>Perfil<select name="role"><option value="advogado">Advogado</option><option value="admin">Administrador</option></select></label>
+      <label>Senha inicial<input type="password" name="password" required minlength="12" autocomplete="new-password"></label>
+      <label>Confirmar senha<input type="password" name="confirmation" required minlength="12" autocomplete="new-password"></label>
+      <button class="button primary">Cadastrar usuário</button>
+    </form>
+  </article>
+  <article class="card tip-card">
+    <p class="eyebrow">Controle de acesso</p><h3>Perfis separados</h3>
+    <p>Clientes e agenda são compartilhados. Somente administradores podem cadastrar usuários, redefinir senhas e arquivar clientes.</p>
+    <p>Senhas são armazenadas com hash seguro e a troca de senha encerra sessões anteriores.</p>
+  </article>
+</section>
+
+<section class="user-grid">
+  {% for user in users %}
+  <article class="card user-card">
+    <div><span class="status {{ 'approved' if user.active else 'rejected' }}">{{ 'ativo' if user.active else 'inativo' }}</span><h3>{{ user.display_name }}</h3><p>@{{ user.username }} · {{ user.role }}</p></div>
+    <form method="post" action="{{ url_for('reset_user_password', user_id=user.id) }}" class="form-grid compact-form confirm-password-reset">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Nova senha<input type="password" name="password" minlength="12" required autocomplete="new-password"></label>
+      <label>Confirmar<input type="password" name="confirmation" minlength="12" required autocomplete="new-password"></label>
+      <button class="button ghost small">Redefinir senha</button>
+    </form>
+    {% if user.id != current_user.id %}
+    <form method="post" action="{{ url_for('change_user_status', user_id=user.id) }}" class="confirm-account-status" data-message="{{ 'Desativar esta conta?' if user.active else 'Reativar esta conta?' }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="{{ 'link-danger' if user.active else 'link' }}">{{ 'Desativar' if user.active else 'Reativar' }}</button>
+    </form>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

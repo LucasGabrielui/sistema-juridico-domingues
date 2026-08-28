@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Painel{% endblock %}
+{% block heading %}Visão geral{% endblock %}
+{% block content %}
+<section class="hero-panel">
+  <div>
+    <span class="pill">Gestão jurídica simplificada</span>
+    <h2>O escritório em uma visão rápida.</h2>
+    <p>Acompanhe clientes, audiências, compromissos e acessos em um painel centralizado.</p>
+  </div>
+  <div class="hero-actions">
+    <a class="button primary" href="{{ url_for('clients') }}">Novo cliente</a>
+    <a class="button ghost dark" href="{{ url_for('agenda') }}">Novo compromisso</a>
+  </div>
+  <span class="watermark" aria-hidden="true">⚖</span>
+</section>
+
+<section class="stats-grid" aria-label="Indicadores">
+  <article class="stat"><span>Clientes ativos</span><strong>{{ stats.clients }}</strong><small>cadastros em acompanhamento</small></article>
+  <article class="stat"><span>Compromissos</span><strong>{{ stats.events }}</strong><small>itens ativos na agenda</small></article>
+  <article class="stat"><span>Audiências</span><strong>{{ stats.hearings }}</strong><small>previstas nos próximos 30 dias</small></article>
+  <article class="stat"><span>Usuários ativos</span><strong>{{ stats.users }}</strong><small>contas com acesso</small></article>
+</section>
+
+<section class="two-columns">
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Agenda</p><h3>Próximos compromissos</h3></div><a href="{{ url_for('agenda') }}">Ver agenda</a></div>
+    {% if upcoming %}<div class="list">
+      {% for event in upcoming %}
+      <div class="list-row">
+        <span class="event-icon {{ event.event_type }}">{{ event.start_at[8:10] }}</span>
+        <div><strong>{{ event.title }}</strong><small>{{ event.start_at|brdate }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small></div>
+      </div>
+      {% endfor %}
+    </div>{% else %}<div class="empty">Nenhum compromisso futuro.</div>{% endif %}
+  </article>
+
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Clientes</p><h3>Cadastros recentes</h3></div><a href="{{ url_for('clients') }}">Ver clientes</a></div>
+    {% if recent_clients %}<div class="list">
+      {% for client in recent_clients %}
+      <div class="list-row">
+        <span class="avatar" aria-hidden="true">{{ client.full_name[:1] }}</span>
+        <div><strong>{{ client.full_name }}</strong><small>{{ client.procedural_stage or 'Fase não informada' }} · contrato em {{ client.contract_signed_on|brday }}</small></div>
+      </div>
+      {% endfor %}
+    </div>{% else %}<div class="empty">Nenhum cliente ativo.</div>{% endif %}
+  </article>
+</section>
+{% endblock %}

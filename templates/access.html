@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ 'Primeiro acesso' if mode == 'setup' else 'Entrar' }} · Domingues Advogados</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="access-page">
+  <main class="access-card">
+    <div class="access-brand"><b>DA</b><div><strong>DOMINGUES</strong><span>ADVOGADOS</span></div></div>
+    <p class="access-kicker">VERSÃO DEMONSTRATIVA</p>
+    <h1>{{ 'Criar administrador' if mode == 'setup' else 'Entrar no sistema' }}</h1>
+    <p>{{ 'Defina o primeiro acesso local. A senha não será enviada para nenhum serviço.' if mode == 'setup' else 'Use a conta criada no primeiro acesso.' }}</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      {% if mode == 'setup' %}
+      <label>Nome completo<input name="display_name" autocomplete="name" required minlength="3" maxlength="100"></label>
+      {% endif %}
+      <label>Usuário<input name="username" autocomplete="username" required minlength="3" maxlength="40"></label>
+      <label>Senha<input type="password" name="password" autocomplete="{{ 'new-password' if mode == 'setup' else 'current-password' }}" required minlength="12"></label>
+      {% if mode == 'setup' %}
+      <label>Confirmar senha<input type="password" name="confirmation" autocomplete="new-password" required minlength="12"></label>
+      {% endif %}
+      <button>{{ 'Criar administrador' if mode == 'setup' else 'Entrar' }}</button>
+    </form>
+    <small>Ambiente local com dados fictícios para portfólio.</small>
+  </main>
+</body>
+</html>

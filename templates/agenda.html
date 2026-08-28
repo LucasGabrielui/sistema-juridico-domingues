@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Agenda{% endblock %}
+{% block heading %}Agenda jurídica{% endblock %}
+{% block content %}
+<section class="two-columns agenda-layout">
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Novo registro</p><h3>Adicionar compromisso</h3></div></div>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label class="full">Título<input name="title" placeholder="Ex.: Audiência de conciliação" required maxlength="140"></label>
+      <label>Tipo<select name="event_type"><option value="audiencia">Audiência</option><option value="prazo">Fim de prazo</option><option value="reuniao">Reunião</option><option value="televisita">Televisita</option><option value="outro">Outro</option></select></label>
+      <label>Cliente<select name="client_id"><option value="">Sem cliente vinculado</option>{% for client in clients %}<option value="{{ client.id }}">{{ client.full_name }}</option>{% endfor %}</select></label>
+      <label>Início<input type="datetime-local" name="start_at" required></label>
+      <label>Término<input type="datetime-local" name="end_at"></label>
+      <label class="full">Local<input name="location" placeholder="Fórum, escritório ou videoconferência" maxlength="120"></label>
+      <label class="full">Observações<textarea name="description" rows="4" maxlength="1000"></textarea></label>
+      <button class="button primary">Salvar compromisso</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Cronologia</p><h3>Compromissos ativos</h3></div></div>
+    {% if events %}<div class="timeline">
+      {% for event in events %}
+      <div class="timeline-item">
+        <span class="timeline-dot {{ event.event_type }}"></span>
+        <div class="timeline-body">
+          <strong>{{ event.title }}</strong>
+          <small>{{ event.start_at|brdate }} · {{ event.event_type|capitalize }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small>
+          {% if event.location %}<p>{{ event.location }}</p>{% endif %}
+          <form method="post" action="{{ url_for('complete_event', event_id=event.id) }}" class="confirm-complete">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="link">Marcar como concluído</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>{% else %}<div class="empty">A agenda está vazia.</div>{% endif %}
+  </article>
+</section>
+{% endblock %}

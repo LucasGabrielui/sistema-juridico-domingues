@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block heading %}Clientes{% endblock %}
+{% block content %}
+<section class="hero-panel compact">
+  <div><span class="pill">Cadastro central</span><h2>Clientes e fases processuais</h2><p>A próxima audiência é calculada automaticamente a partir da agenda.</p></div>
+</section>
+
+<section class="two-columns clients-layout">
+  <article class="card">
+    <div class="card-head"><div><p class="eyebrow">Novo registro</p><h3>Cadastrar cliente</h3></div></div>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label class="full">Nome completo<input name="full_name" required maxlength="120"></label>
+      <label>Assinatura do contrato<input type="date" name="contract_signed_on" required></label>
+      <label>Fase processual<input name="procedural_stage" placeholder="Ex.: Aguardando audiência" maxlength="180"></label>
+      <button class="button primary">Cadastrar cliente</button>
+    </form>
+  </article>
+  <article class="card tip-card">
+    <p class="eyebrow">Integração interna</p><h3>Agenda vinculada</h3>
+    <p>Ao associar uma audiência a um cliente, a data passa a aparecer neste cadastro e no painel.</p>
+    <p>Os registros iniciais desta versão são fictícios e podem ser alterados livremente.</p>
+  </article>
+</section>
+
+<form class="toolbar" method="get">
+  <input name="q" value="{{ search }}" placeholder="Pesquisar nome ou fase processual" maxlength="80">
+  <button class="button ghost">Pesquisar</button>
+</form>
+
+<section class="client-grid">
+  {% for client in clients %}
+  <article class="card client-card">
+    <form method="post" action="{{ url_for('edit_client', client_id=client.id) }}" class="form-grid compact-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label class="full">Nome completo<input name="full_name" value="{{ client.full_name }}" required maxlength="120"></label>
+      <label>Assinatura do contrato<input type="date" name="contract_signed_on" value="{{ client.contract_signed_on }}" required></label>
+      <label>Fase processual<input name="procedural_stage" value="{{ client.procedural_stage }}" maxlength="180"></label>
+      <div class="client-summary full"><span>Próxima audiência</span><b>{{ client.next_hearing_at|brdate if client.next_hearing_at else 'Nenhuma agendada' }}</b></div>
+      <button class="button primary small">Salvar alterações</button>
+    </form>
+    {% if current_user.role == 'admin' %}
+    <form method="post" action="{{ url_for('archive_client', client_id=client.id) }}" class="confirm-archive">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="confirm_id" value="{{ client.id }}">
+      <button class="link-danger">Arquivar cadastro</button>
+    </form>
+    {% endif %}
+  </article>
+  {% else %}<div class="card empty">Nenhum cliente encontrado.</div>{% endfor %}
+</section>
+{% endblock %}

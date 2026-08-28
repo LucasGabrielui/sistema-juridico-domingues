@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Demonstração de sistema jurídico web para portfólio.">
+  <title>{% block title %}Sistema Jurídico{% endblock %} · Domingues Advogados</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}" aria-label="Domingues Advogados — início">
+      <span class="brand-mark" aria-hidden="true">DA</span>
+      <span><strong>Domingues</strong><small>Advogados</small></span>
+    </a>
+    <nav aria-label="Navegação principal">
+      <a class="{{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}"><span>⌂</span> Painel</a>
+      <a class="{{ 'active' if request.endpoint in ['clients', 'edit_client', 'archive_client'] else '' }}" href="{{ url_for('clients') }}"><span>♙</span> Clientes</a>
+      <a class="{{ 'active' if request.endpoint in ['agenda', 'complete_event'] else '' }}" href="{{ url_for('agenda') }}"><span>▣</span> Agenda</a>
+      {% if current_user and current_user.role == 'admin' %}
+      <a class="{{ 'active' if request.endpoint in ['users', 'change_user_status', 'reset_user_password'] else '' }}" href="{{ url_for('users') }}"><span>♟</span> Usuários</a>
+      {% endif %}
+    </nav>
+    <div class="demo-label"><span></span> Versão demonstrativa</div>
+    <p class="sidebar-note">Dados fictícios · portfólio</p>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Domingues Advogados</p>
+        <h1>{% block heading %}Sistema Jurídico{% endblock %}</h1>
+      </div>
+      {% if current_user %}
+      <div class="user-box">
+        <span><b>{{ current_user.display_name }}</b><small>{{ current_user.role }}</small></span>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button>Sair</button>
+        </form>
+      </div>
+      {% endif %}
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <section aria-label="Avisos">
+        {% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}
+      </section>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+    <footer>Projeto demonstrativo. Nenhum dado real de cliente é incluído.</footer>
+  </main>
+</body>
+</html>
