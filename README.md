@@ -64,12 +64,6 @@ tests/                  testes automatizados
 instance/               banco e chave locais (ignorada pelo Git)
 ```
 
-## Decisões da versão pública
-
-A versão interna possui módulos e integrações que não fazem parte deste repositório. Para reduzir riscos e facilitar a avaliação do código, esta demonstração mantém somente o núcleo escolhido para o portfólio: painel, clientes, agenda, login e usuários.
-
-Não publique arquivos da pasta `instance`, arquivos `.env`, cópias de segurança, documentos ou capturas de tela contendo informações reais.
-
 ## Autoria
 
 Desenvolvido por **Lucas Gabriel Domingues de Souza**, estudante de Análise e Desenvolvimento de Sistemas, como projeto aplicado à rotina de um escritório jurídico, com apoio de ferramentas de inteligência artificial durante o desenvolvimento e a revisão.
