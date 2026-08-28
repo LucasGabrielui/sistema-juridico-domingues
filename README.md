@@ -1,4 +1,4 @@
-# Sistema Jurídico Domingues — versão de portfólio
+# Sistema Jurídico Domingues
 
 Versão pública, leve e sanitizada de um sistema web criado para apoiar a rotina administrativa da Domingues Advogados. O projeto demonstra autenticação, níveis de acesso, painel com indicadores, cadastro de clientes e agenda jurídica.
 
