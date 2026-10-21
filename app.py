@@ -340,11 +340,14 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
             403: "Sua conta não possui permissão para esta ação.",
             404: "A página solicitada não foi encontrada.",
         }
+        # O Werkzeug sempre preenche description com um texto padrão em inglês.
+        # Só usamos a descrição quando o abort() recebeu uma mensagem própria.
+        custom = error.description != type(error).description
         return (
             render_template(
                 "error.html",
                 code=error.code,
-                message=getattr(error, "description", messages[error.code]),
+                message=error.description if custom else messages[error.code],
             ),
             error.code,
         )

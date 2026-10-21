@@ -210,3 +210,19 @@ def test_next_hearing_uses_local_time_not_utc(app, client, monkeypatch):
     finally:
         monkeypatch.delenv("TZ")
         time.tzset()
+
+
+def test_error_pages_use_portuguese_messages(client):
+    create_admin(client)
+    login_admin(client)
+    response = client.get("/pagina-que-nao-existe")
+    assert response.status_code == 404
+    assert "A página solicitada não foi encontrada." in response.get_data(as_text=True)
+
+
+def test_error_pages_keep_message_given_to_abort(client):
+    create_admin(client)
+    login_admin(client)
+    response = client.post("/clientes/1/arquivar", data={"confirm_id": "999"})
+    assert response.status_code == 400
+    assert "O arquivamento não foi confirmado." in response.get_data(as_text=True)
