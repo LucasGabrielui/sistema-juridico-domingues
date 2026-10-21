@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import re
+import sqlite3
 import time
 from datetime import datetime, timedelta
 
 import pytest
+
+import app as app_module
 
 from app import create_app, execute, query_one
 
@@ -260,3 +263,26 @@ def test_agenda_stores_normalized_dates(app, client):
     )
     assert row["start_at"] == "2030-05-10T09:30"
     assert row["end_at"] == "2030-05-10T10:15"
+
+
+def test_db_helpers_close_their_connections(tmp_path, monkeypatch):
+    opened = []
+    real_connect = app_module.connect
+
+    def tracking_connect(database):
+        connection = real_connect(database)
+        opened.append(connection)
+        return connection
+
+    monkeypatch.setattr(app_module, "connect", tracking_connect)
+    database = tmp_path / "conexoes.sqlite3"
+    app_module.init_db(database)
+    app_module.seed_demo_data(database)
+    app_module.execute(database, "INSERT INTO login_attempts (username, remote_addr) VALUES ('x', 'y')")
+    app_module.query_one(database, "SELECT 1")
+    app_module.query_all(database, "SELECT 1")
+
+    assert opened
+    for connection in opened:
+        with pytest.raises(sqlite3.ProgrammingError):
+            connection.execute("SELECT 1")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import secrets
 import sqlite3
+from contextlib import closing
 from datetime import date, datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -98,26 +99,26 @@ def connect(database: str | Path) -> sqlite3.Connection:
 
 def init_db(database: str | Path) -> None:
     Path(database).parent.mkdir(parents=True, exist_ok=True)
-    with connect(database) as connection:
+    with closing(connect(database)) as connection:
         connection.executescript(SCHEMA)
 
 
 def query_one(
     database: str | Path, sql: str, params: Iterable[Any] = ()
 ) -> sqlite3.Row | None:
-    with connect(database) as connection:
+    with closing(connect(database)) as connection:
         return connection.execute(sql, tuple(params)).fetchone()
 
 
 def query_all(
     database: str | Path, sql: str, params: Iterable[Any] = ()
 ) -> list[sqlite3.Row]:
-    with connect(database) as connection:
+    with closing(connect(database)) as connection:
         return connection.execute(sql, tuple(params)).fetchall()
 
 
 def execute(database: str | Path, sql: str, params: Iterable[Any] = ()) -> int:
-    with connect(database) as connection:
+    with closing(connect(database)) as connection:
         cursor = connection.execute(sql, tuple(params))
         connection.commit()
         return int(cursor.lastrowid)
@@ -149,7 +150,7 @@ def seed_demo_data(database: str | Path) -> None:
         ("Bruno Almeida — demonstração", (today - timedelta(days=61)).isoformat(), "Aguardando audiência"),
         ("Empresa Horizonte — demonstração", (today - timedelta(days=34)).isoformat(), "Análise documental"),
     ]
-    with connect(database) as connection:
+    with closing(connect(database)) as connection:
         connection.executemany(
             "INSERT INTO clients (full_name, contract_signed_on, procedural_stage) VALUES (?, ?, ?)",
             clients,
