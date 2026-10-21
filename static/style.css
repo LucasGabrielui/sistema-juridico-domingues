@@ -111,6 +111,10 @@ button, input, select, textarea { font: inherit; }
 .list-row small { margin-top: 4px; color: var(--muted); font-size: 11px; }
 .event-icon, .avatar { flex: 0 0 38px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; color: var(--navy); background: #edf3f8; font: 700 15px Georgia, serif; }
 .event-icon.prazo { color: #8f1e16; background: #fef0ef; }
+.overdue-panel { margin-bottom: 22px; padding: 22px 24px; border: 1px solid #f4c7c3; border-left: 5px solid var(--red); border-radius: 14px; background: #fff6f5; box-shadow: 0 6px 22px rgba(180, 35, 24, .08); }
+.overdue-panel h3, .overdue-panel .eyebrow, .overdue-panel .card-head a { color: var(--red); }
+.overdue-panel .list-row { border-top-color: #f4c7c3; }
+.event-icon.overdue { color: var(--white); background: var(--red); }
 .event-icon.audiencia { color: #835000; background: #fff4dd; }
 .empty { padding: 30px 12px; color: var(--muted); font-size: 13px; text-align: center; }
 

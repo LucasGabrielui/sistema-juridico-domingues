@@ -15,6 +15,20 @@
   <span class="watermark" aria-hidden="true">⚖</span>
 </section>
 
+{% if overdue %}
+<section class="overdue-panel" aria-labelledby="overdue-title">
+  <div class="card-head"><div><p class="eyebrow">Atenção</p><h3 id="overdue-title">Atrasados ({{ overdue|length }})</h3></div><a href="{{ url_for('agenda') }}">Resolver na agenda</a></div>
+  <div class="list">
+    {% for event in overdue %}
+    <div class="list-row">
+      <span class="event-icon overdue">!</span>
+      <div><strong>{{ event.title }}</strong><small>Era para {{ event.start_at|brdate }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="stats-grid" aria-label="Indicadores">
   <article class="stat"><span>Clientes ativos</span><strong>{{ stats.clients }}</strong><small>cadastros em acompanhamento</small></article>
   <article class="stat"><span>Compromissos</span><strong>{{ stats.events }}</strong><small>itens ativos na agenda</small></article>

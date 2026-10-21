@@ -483,12 +483,26 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
             """,
             (now,),
         )
+        overdue = query_all(
+            database,
+            """
+            SELECT e.*, c.full_name AS client_name
+              FROM events e LEFT JOIN clients c ON c.id=e.client_id
+             WHERE e.status='active' AND e.start_at < ?
+             ORDER BY e.start_at
+            """,
+            (now,),
+        )
         recent_clients = query_all(
             database,
             "SELECT * FROM clients WHERE active=1 ORDER BY id DESC LIMIT 5",
         )
         return render_template(
-            "dashboard.html", stats=stats, upcoming=upcoming, recent_clients=recent_clients
+            "dashboard.html",
+            stats=stats,
+            upcoming=upcoming,
+            overdue=overdue,
+            recent_clients=recent_clients,
         )
 
     @app.route("/clientes", methods=["GET", "POST"])

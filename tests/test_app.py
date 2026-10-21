@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from app import create_app, query_one
+from app import create_app, execute, query_one
 
 
 ADMIN_PASSWORD = "SenhaDeTeste@2026"
@@ -49,6 +49,17 @@ def login_admin(client):
         follow_redirects=False,
     )
     assert response.headers["Location"].endswith("/")
+
+
+def add_event(app, title, start_at, event_type="reuniao", client_id=None, status="active"):
+    return execute(
+        app.config["DATABASE"],
+        """
+        INSERT INTO events (title, event_type, start_at, client_id, status)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (title, event_type, start_at, client_id, status),
+    )
 
 
 def test_first_access_login_and_dashboard(client):
@@ -154,3 +165,24 @@ def test_csrf_is_required_outside_testing(tmp_path):
         },
     )
     assert response.status_code == 400
+
+
+def test_dashboard_shows_overdue_events(app, client):
+    create_admin(client)
+    login_admin(client)
+    past = (datetime.now() - timedelta(days=2)).isoformat(timespec="minutes")
+    add_event(app, "Prazo vencido — demonstração", past, event_type="prazo")
+    add_event(app, "Prazo já concluído — demonstração", past, status="completed")
+
+    html = client.get("/").get_data(as_text=True)
+    assert 'class="overdue-panel"' in html
+    overdue = html.split('class="overdue-panel"', 1)[1].split("</section>", 1)[0]
+    assert "Prazo vencido" in overdue
+    assert "Prazo já concluído" not in overdue
+    assert html.index("overdue-panel") < html.index("stats-grid")
+
+
+def test_dashboard_hides_overdue_block_when_nothing_is_late(client):
+    create_admin(client)
+    login_admin(client)
+    assert "overdue-panel" not in client.get("/").get_data(as_text=True)
