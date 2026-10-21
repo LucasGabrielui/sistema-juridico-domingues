@@ -226,3 +226,17 @@ def test_error_pages_keep_message_given_to_abort(client):
     response = client.post("/clientes/1/arquivar", data={"confirm_id": "999"})
     assert response.status_code == 400
     assert "O arquivamento não foi confirmado." in response.get_data(as_text=True)
+
+
+def test_agenda_shows_event_type_with_accents(app, client):
+    create_admin(client)
+    login_admin(client)
+    future = (datetime.now() + timedelta(days=1)).isoformat(timespec="minutes")
+    add_event(app, "Encontro — demonstração", future, "reuniao")
+    add_event(app, "Sessão — demonstração", future, "audiencia")
+
+    html = client.get("/agenda").get_data(as_text=True)
+    timeline = html.split('class="timeline"', 1)[1]
+    assert "· Reunião" in timeline
+    assert "· Audiência" in timeline
+    assert "Reuniao" not in timeline and "Audiencia" not in timeline

@@ -26,7 +26,7 @@
         <span class="timeline-dot {{ event.event_type }}"></span>
         <div class="timeline-body">
           <strong>{{ event.title }}</strong>
-          <small>{{ event.start_at|brdate }} · {{ event.event_type|capitalize }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small>
+          <small>{{ event.start_at|brdate }} · {{ event_labels.get(event.event_type, event.event_type) }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small>
           {% if event.location %}<p>{{ event.location }}</p>{% endif %}
           <form method="post" action="{{ url_for('complete_event', event_id=event.id) }}" class="confirm-complete">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">

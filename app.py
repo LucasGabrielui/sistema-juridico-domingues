@@ -25,7 +25,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
-EVENT_TYPES = {"audiencia", "prazo", "reuniao", "televisita", "outro"}
+EVENT_LABELS = {
+    "audiencia": "Audiência",
+    "prazo": "Prazo",
+    "reuniao": "Reunião",
+    "televisita": "Televisita",
+    "outro": "Outro",
+}
+EVENT_TYPES = set(EVENT_LABELS)
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -311,7 +318,11 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
         if not token:
             token = secrets.token_urlsafe(32)
             session["_csrf_token"] = token
-        return {"csrf_token": token, "current_user": getattr(g, "user", None)}
+        return {
+            "csrf_token": token,
+            "current_user": getattr(g, "user", None),
+            "event_labels": EVENT_LABELS,
+        }
 
     @app.template_filter("brdate")
     def brdate(value: str | None) -> str:
