@@ -646,8 +646,8 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
                 (
                     title,
                     event_type,
-                    start_at,
-                    end_at,
+                    parsed_start.isoformat(timespec="minutes"),
+                    parsed_end.isoformat(timespec="minutes") if parsed_end else None,
                     request.form.get("location", "").strip()[:120],
                     request.form.get("description", "").strip()[:1000],
                     client_id,

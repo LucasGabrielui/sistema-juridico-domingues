@@ -240,3 +240,23 @@ def test_agenda_shows_event_type_with_accents(app, client):
     assert "· Reunião" in timeline
     assert "· Audiência" in timeline
     assert "Reuniao" not in timeline and "Audiencia" not in timeline
+
+
+def test_agenda_stores_normalized_dates(app, client):
+    create_admin(client)
+    login_admin(client)
+    client.post(
+        "/agenda",
+        data={
+            "title": "Datas normalizadas — demonstração",
+            "event_type": "reuniao",
+            "start_at": "2030-05-10 09:30:45",
+            "end_at": "2030-05-10T10:15:59",
+        },
+    )
+    row = query_one(
+        app.config["DATABASE"],
+        "SELECT start_at, end_at FROM events WHERE title LIKE 'Datas normalizadas%'",
+    )
+    assert row["start_at"] == "2030-05-10T09:30"
+    assert row["end_at"] == "2030-05-10T10:15"
