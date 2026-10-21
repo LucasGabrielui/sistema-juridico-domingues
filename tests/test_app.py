@@ -179,8 +179,8 @@ def test_dashboard_shows_overdue_events(app, client):
     add_event(app, "Prazo já concluído — demonstração", past, status="completed")
 
     html = client.get("/").get_data(as_text=True)
-    assert 'class="overdue-panel"' in html
-    overdue = html.split('class="overdue-panel"', 1)[1].split("</section>", 1)[0]
+    assert 'overdue-panel"' in html
+    overdue = html.split('overdue-panel"', 1)[1].split("</section>", 1)[0]
     assert "Prazo vencido" in overdue
     assert "Prazo já concluído" not in overdue
     assert html.index("overdue-panel") < html.index("stats-grid")

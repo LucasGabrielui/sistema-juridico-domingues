@@ -16,7 +16,7 @@
 </section>
 
 {% if overdue %}
-<section class="overdue-panel" aria-labelledby="overdue-title">
+<section class="card overdue-panel" aria-labelledby="overdue-title">
   <div class="card-head"><div><p class="eyebrow">Atenção</p><h3 id="overdue-title">Atrasados ({{ overdue|length }})</h3></div><a href="{{ url_for('agenda') }}">Resolver na agenda</a></div>
   <div class="list">
     {% for event in overdue %}
