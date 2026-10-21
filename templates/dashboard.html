@@ -42,7 +42,7 @@
     {% if upcoming %}<div class="list">
       {% for event in upcoming %}
       <div class="list-row">
-        <span class="event-icon {{ event.event_type }}">{{ event.start_at[8:10] }}</span>
+        <span class="event-icon {{ event.event_type }}" aria-label="Dia {{ event.start_at[8:10] }} do mês {{ event.start_at[5:7] }}">{{ event.start_at[8:10] }}/{{ event.start_at[5:7] }}</span>
         <div><strong>{{ event.title }}</strong><small>{{ event.start_at|brdate }}{% if event.client_name %} · {{ event.client_name }}{% endif %}</small></div>
       </div>
       {% endfor %}

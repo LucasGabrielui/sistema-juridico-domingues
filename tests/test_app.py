@@ -286,3 +286,13 @@ def test_db_helpers_close_their_connections(tmp_path, monkeypatch):
     for connection in opened:
         with pytest.raises(sqlite3.ProgrammingError):
             connection.execute("SELECT 1")
+
+
+def test_dashboard_icon_shows_day_and_month(app, client):
+    create_admin(client)
+    login_admin(client)
+    add_event(app, "Compromisso distante — demonstração", "2030-05-10T09:30")
+
+    html = client.get("/").get_data(as_text=True)
+    row = html.split("Compromisso distante", 1)[0].rsplit('class="list-row"', 1)[1]
+    assert ">10/05</span>" in row
