@@ -532,19 +532,20 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
                 return redirect(url_for("clients"))
 
         search = request.args.get("q", "").strip()[:80]
-        params: tuple[Any, ...] = ()
+        now = datetime.now().isoformat(timespec="minutes")
+        params: tuple[Any, ...] = (now,)
         condition = "c.active=1"
         if search:
             condition += " AND (c.full_name LIKE ? OR c.procedural_stage LIKE ?)"
             term = f"%{search}%"
-            params = (term, term)
+            params += (term, term)
         rows = query_all(
             database,
             f"""
             SELECT c.*,
                    (SELECT MIN(e.start_at) FROM events e
                      WHERE e.client_id=c.id AND e.status='active'
-                       AND e.event_type='audiencia' AND datetime(e.start_at) >= CURRENT_TIMESTAMP
+                       AND e.event_type='audiencia' AND e.start_at >= ?
                    ) AS next_hearing_at
               FROM clients c WHERE {condition}
              ORDER BY c.full_name COLLATE NOCASE

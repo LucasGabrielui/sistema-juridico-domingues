@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from datetime import datetime, timedelta
 
 import pytest
@@ -186,3 +187,26 @@ def test_dashboard_hides_overdue_block_when_nothing_is_late(client):
     create_admin(client)
     login_admin(client)
     assert "overdue-panel" not in client.get("/").get_data(as_text=True)
+
+
+def test_next_hearing_uses_local_time_not_utc(app, client, monkeypatch):
+    # Simula o servidor no Brasil (UTC-3): CURRENT_TIMESTAMP do SQLite fica 3h à frente.
+    monkeypatch.setenv("TZ", "America/Sao_Paulo")
+    time.tzset()
+    try:
+        create_admin(client)
+        login_admin(client)
+        client_id = execute(
+            app.config["DATABASE"],
+            "INSERT INTO clients (full_name, contract_signed_on) VALUES (?, ?)",
+            ("Cliente Fuso — demonstração", "2026-01-10"),
+        )
+        soon = (datetime.now() + timedelta(hours=1)).isoformat(timespec="minutes")
+        add_event(app, "Audiência em 1h — demonstração", soon, "audiencia", client_id)
+
+        html = client.get("/clientes").get_data(as_text=True)
+        card = html.split("Cliente Fuso", 1)[1].split("</article>", 1)[0]
+        assert "Nenhuma agendada" not in card
+    finally:
+        monkeypatch.delenv("TZ")
+        time.tzset()
